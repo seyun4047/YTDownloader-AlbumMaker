@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  backend:
+    build: ./backend
+    container_name: mutzinYT-backend
+    env_file:
+      - .env
+    ports:
+      - "${BACKEND_PORT}:10210"
+    volumes:
+      - yt_downloads:/app/downloads
+
+  frontend:
+    build: 
+      context: ./frontend
+      args:
+        - GEMINI_API_KEY=${GEMINI_API_KEY}
+    container_name: mutzinYT-frontend
+    env_file:
+      - .env
+    ports:
+      - "${FRONTEND_PORT}:10211"
+    depends_on:
+      - backend
+
+volumes:
+  yt_downloads:

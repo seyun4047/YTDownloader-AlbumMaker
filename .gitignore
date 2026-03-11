@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+backend/.venv/
+backend/__pycache__/
+*.pyc
+
+# Environment variables
+.env
+
+# Downloads (Keep the directory structure but ignore files inside)
+downloads/*
+!downloads/.gitkeep
+
+# IDEs and OS files
+.DS_Store
+.idea/
+.vscode/
+
+# Build artifacts
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local

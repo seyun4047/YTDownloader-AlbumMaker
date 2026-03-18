@@ -13,6 +13,7 @@ from yt.thumbnailadder import add_thumbnail_to_mp3
 from yt.thumbnaildownloader import download_thumbnail
 from yt.yt_downloader import download as yt_download
 from yt.allbumMaker import build_album_from_youtube
+from yt.playlist_links import get_playlist_links
 
 # ── 환경 변수 ──────────────────────────────────────────────
 PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "http://seyun4047.iptime.org:10210").rstrip("/")
@@ -141,6 +142,16 @@ async def yt_music(request: Request, body: YtMusicRequest):
 
     relative_path = mp3_path.relative_to(DOWNLOAD_DIR).as_posix()
     return DownloadResponse(status=True, url=build_download_url(request, relative_path))
+
+
+@app.post("/yt/playlist")
+async def yt_playlist(request: Request, body: YtRequest):
+    """유튜브 플레이리스트 URL → 비디오 URL 목록 반환"""
+    try:
+        urls = await run_job_with_limit(get_playlist_links, body.url.strip())
+        return {"status": True, "urls": urls}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch playlist links: {exc}") from exc
 
 
 @app.get("/download/{filepath:path}", name="download_file")

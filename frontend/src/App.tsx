@@ -65,31 +65,15 @@ export default function App() {
     localStorage.setItem('yt_download_history', JSON.stringify(history));
   }, [history]);
 
-  const handleDownload = async () => {
-    if (!url.trim()) return;
-
-    const id = Math.random().toString(36).substring(7);
-    const newItem: DownloadItem = {
-      id,
-      url,
-      mode,
-      quality,
-      status: 'pending',
-      timestamp: Date.now(),
-    };
-
-    setHistory(prev => [newItem, ...prev]);
-    setIsProcessing(true);
-    setUrl(''); // Clear input
-
+  const processDownload = async (targetUrl: string, id: string, currentMode: DownloadMode = mode, currentMusicOptions = musicOptions, bypassAutoDownload = false) => {
     try {
       setHistory(prev => prev.map(item => item.id === id ? { ...item, status: 'downloading' } : item));
 
-      let endpoint = `/yt/${mode}`;
-      let body: any = { url, quality };
+      let endpoint = `/yt/${currentMode}`;
+      let body: any = { url: targetUrl, quality };
 
-      if (mode === 'music') {
-        body = { ...body, ...musicOptions };
+      if (currentMode === 'music') {
+        body = { ...body, ...currentMusicOptions };
       }
 
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -110,13 +94,80 @@ export default function App() {
       ));
 
       // Automatically trigger download
-      window.open(downloadUrl, '_blank');
-
+      if (!bypassAutoDownload) {
+        window.open(downloadUrl, '_blank');
+      } else {
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.target = '_blank';
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
     } catch (err: any) {
       setHistory(prev => prev.map(item => 
         item.id === id ? { ...item, status: 'error', error: err.message } : item
       ));
-    } finally {
+    }
+  };
+
+  const handleDownload = async () => {
+    if (!url.trim()) return;
+
+    const targetUrl = url;
+    setUrl(''); // Clear input
+
+    if (targetUrl.includes('list=')) {
+      setIsProcessing(true);
+      try {
+        const response = await fetch(`${API_BASE_URL}/yt/playlist`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: targetUrl, quality })
+        });
+        if (!response.ok) throw new Error('Failed to fetch playlist links');
+        
+        const data = await response.json();
+        const urls: string[] = data.urls;
+
+        if (urls && urls.length > 0) {
+          const newItems = urls.map(u => ({
+            id: Math.random().toString(36).substring(7),
+            url: u,
+            mode,
+            quality,
+            status: 'pending' as const,
+            timestamp: Date.now(),
+          }));
+          setHistory(prev => [...newItems, ...prev]);
+
+          // Process each one completely sequentially
+          for (const item of newItems) {
+            await processDownload(item.url, item.id, mode, musicOptions, true);
+          }
+        } else {
+          throw new Error('No videos found in playlist');
+        }
+      } catch (err: any) {
+         // Show error message for playlist fetch failure
+         alert('Failed to process playlist: ' + err.message);
+      } finally {
+        setIsProcessing(false);
+      }
+    } else {
+      const id = Math.random().toString(36).substring(7);
+      const newItem: DownloadItem = {
+        id,
+        url: targetUrl,
+        mode,
+        quality,
+        status: 'pending',
+        timestamp: Date.now(),
+      };
+      setHistory(prev => [newItem, ...prev]);
+      setIsProcessing(true);
+      await processDownload(targetUrl, id);
       setIsProcessing(false);
     }
   };

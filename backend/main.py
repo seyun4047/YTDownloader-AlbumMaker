@@ -16,9 +16,9 @@ from yt.allbumMaker import build_album_from_youtube
 from yt.playlist_links import get_playlist_links
 
 # ── 환경 변수 ──────────────────────────────────────────────
-PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "http://seyun4047.iptime.org:10210").rstrip("/")
+PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL").rstrip("/")
 DOWNLOAD_DIR = Path(os.getenv("DOWNLOAD_DIR", "./downloads"))
-FRONTEND_URL = os.getenv("PUBLIC_FRONT_URL", "http://seyun4047.iptime.org:10211")
+FRONTEND_URL = os.getenv("PUBLIC_FRONT_URL")
 
 YT_SUBDIR = "yt"
 YT_MUSIC_SUBDIR = "yt_music"

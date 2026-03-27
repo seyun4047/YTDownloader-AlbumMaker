@@ -1,5 +1,7 @@
 # Mutzin Youtube Downloader
 
+# [TRY IT!](https://yt.mutzin.com)(click me)
+
 # Youtube To Album!
 This project is a centralized Youtube downloader featuring a separated frontend (React + Vite)<br>
 and backend (FastAPI + yt-dlp/ffmpeg). It allows users to download standard audio/video<br>

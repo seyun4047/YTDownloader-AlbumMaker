@@ -8,7 +8,7 @@ This project is a centralized Youtube downloader featuring a separated frontend 
 and backend (FastAPI + yt-dlp/ffmpeg). It allows users to download standard audio/video<br>
 and also includes an AI-powered feature to automatically fetch album artwork, lyrics, and metadata using the Gemini API.
 
-<img width="1639" height="1041" alt="로고" src="https://github.com/user-attachments/assets/5dda67ac-8b3e-4a34-ae6f-a68301522205" />
+<img width="1639" height="1041" alt="메인이미지" src="https://github.com/user-attachments/assets/5dda67ac-8b3e-4a34-ae6f-a68301522205" />
 ## 🚀 Features
 
 ### Frontend (React + Vite)
